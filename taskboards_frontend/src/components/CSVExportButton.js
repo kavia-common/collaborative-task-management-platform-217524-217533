@@ -1,12 +1,15 @@
 import React, { useMemo } from "react";
 import { CSVLink } from "react-csv";
 import { theme } from "../theme";
+import { useDemo } from "../contexts/DemoContext";
 
 /**
  * CSV Export Button
  * Accepts an array of tasks and converts them into a CSV with useful columns.
  */
 export default function CSVExportButton({ tasks = [] }) {
+  const { backendReady, demoMode } = useDemo();
+
   const headers = [
     { label: "ID", key: "id" },
     { label: "Title", key: "title" },
@@ -29,11 +32,37 @@ export default function CSVExportButton({ tasks = [] }) {
     }));
   }, [tasks]);
 
+  const disabled = !backendReady && !demoMode;
+  const tooltip = disabled ? "Backend not ready. CSV export disabled." : "Export current view to CSV";
+
+  if (disabled) {
+    return (
+      <span
+        title={tooltip}
+        aria-disabled="true"
+        style={{
+          background: "#F3F4F6",
+          color: theme.colors.subtleText,
+          textDecoration: "none",
+          padding: "10px 14px",
+          borderRadius: theme.radius.sm,
+          boxShadow: `0 1px 2px ${theme.colors.shadow}`,
+          fontWeight: 600,
+          cursor: "not-allowed",
+          border: `1px dashed ${theme.colors.borderStrong}`
+        }}
+      >
+        Export CSV
+      </span>
+    );
+  }
+
   return (
     <CSVLink
       data={data}
       headers={headers}
       filename="taskboards_export.csv"
+      title={tooltip}
       style={{
         background: theme.colors.secondary,
         color: "#111",

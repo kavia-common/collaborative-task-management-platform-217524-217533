@@ -49,6 +49,8 @@
   color: var(--text-primary);
   transition: background-color 0.3s ease;
   position: relative;
+  letter-spacing: 0.1px;
+  line-height: 1.5;
 }
 
 .App-link {

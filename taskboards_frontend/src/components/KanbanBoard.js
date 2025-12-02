@@ -78,6 +78,7 @@ export default function KanbanBoard({ initialTasks = [], onTasksChange }) {
                             padding: 10,
                             marginBottom: 10,
                             boxShadow: `0 1px 2px ${theme.colors.shadow}`,
+                            transition: "box-shadow 0.15s ease, transform 0.05s ease",
                             ...prov.draggableProps.style
                           }}
                         >

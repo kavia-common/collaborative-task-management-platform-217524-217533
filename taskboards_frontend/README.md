@@ -24,7 +24,16 @@ Ocean Professional themed frontend for a collaborative task management app with 
 - Filters drawer for search/assignee/priority/tag
 - CSV export of filtered tasks
 - Presence indicator in header
-- Ocean Professional theme
+- Ocean Professional theme (refined spacing and colors)
+
+## Demo Mode and Graceful Fallbacks
+
+- Set REACT_APP_DEMO_MODE=true to explore the UI without a database.
+- When the backend returns HTTP 503 for DB-dependent routes, the UI automatically switches to a lightweight in-memory demo mode:
+  - A top banner "Demo mode (no DB configured)" appears.
+  - Mutating actions to the server are disabled; local optimistic interactions still work in-memory.
+  - CSV export is disabled when backend is not ready unless in demo mode (then it exports the local/mock data).
+  - WebSocket connection status is surfaced in the header.
 
 ## Notes
 

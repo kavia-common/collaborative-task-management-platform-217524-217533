@@ -1,21 +1,39 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import KanbanBoard from "../components/KanbanBoard";
 import FiltersDrawer from "../components/FiltersDrawer";
 import CSVExportButton from "../components/CSVExportButton";
+import { useDemo } from "../contexts/DemoContext";
+import { apiGet } from "../services/api";
 
 /**
  * Boards page assembling filters, CSV export, and Kanban.
- * Replace the demo data/loading with API integration as backend becomes available.
+ * Uses DemoContext for graceful fallback when backend returns 503 or demo is forced.
  */
 export default function Boards() {
+  const { withDemoFallback, demoMode, mockTasks, setMockTasks, disableMutations } = useDemo();
   const [filters, setFilters] = useState({});
-  const [tasks, setTasks] = useState([
-    { id: "t1", title: "Design login screen", status: "Backlog", priority: "High", tags: ["frontend"], assignee: { name: "Alice" }, dueDate: "2025-12-03" },
-    { id: "t2", title: "API auth endpoint", status: "In Progress", priority: "Urgent", tags: ["backend","feature"], assignee: { name: "Bob" }, dueDate: "2025-12-04" },
-    { id: "t3", title: "Fix Kanban drag bug", status: "Review", priority: "Medium", tags: ["bug"], assignee: { name: "Charlie" }, dueDate: "2025-12-12" },
-    { id: "t4", title: "Release 0.1.0", status: "Done", priority: "High", tags: ["ops"], assignee: { name: "Dana" }, dueDate: "2025-12-15" },
-    { id: "t5", title: "Add calendar legends", status: "Backlog", priority: "Low", tags: ["frontend","feature"], assignee: { name: "Alice" }, dueDate: "2025-12-07" }
-  ]);
+  const [tasks, setTasks] = useState([]);
+
+  // Load tasks: try API, on 503 fallback to mock
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const data = await withDemoFallback(
+          apiGet("/tasks"),
+          {
+            fallback: () => mockTasks
+          }
+        );
+        if (!cancelled) setTasks(data);
+      } catch {
+        // Network or other errors - show mock tasks if demoMode active, else keep empty
+        if (!cancelled) setTasks(demoMode ? mockTasks : []);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [withDemoFallback, demoMode, mockTasks]);
 
   const filtered = useMemo(() => {
     return tasks.filter(t => {
@@ -27,13 +45,25 @@ export default function Boards() {
     });
   }, [tasks, filters]);
 
+  // Optimistic local updates when in demo mode (no server side mutation)
+  const onTasksChange = (updated) => {
+    setTasks(updated);
+    if (demoMode) {
+      // persist to in-memory demo store so other pages see it
+      setMockTasks(updated);
+    } else if (disableMutations) {
+      // explicitly do nothing if disabled (safety net)
+      // Could show a toast in a future iteration
+    }
+  };
+
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <FiltersDrawer onChange={setFilters} />
         <CSVExportButton tasks={filtered} />
       </div>
-      <KanbanBoard initialTasks={filtered} onTasksChange={setTasks} />
+      <KanbanBoard initialTasks={filtered} onTasksChange={onTasksChange} />
     </div>
   );
 }

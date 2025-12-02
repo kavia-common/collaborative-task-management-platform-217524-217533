@@ -1,6 +1,7 @@
 /**
  * API client for TaskBoards frontend.
  * Uses REACT_APP_API_BASE_URL from environment.
+ * Adds graceful handling for 503 responses to enable demo mode fallbacks.
  */
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
@@ -14,6 +15,11 @@ function buildHeaders(token) {
   return headers;
 }
 
+function handleError(path, method, res) {
+  // Throw with explicit status code to allow demo fallback logic to detect 503
+  throw new Error(`${method} ${path} failed: ${res.status}`);
+}
+
 // PUBLIC_INTERFACE
 export async function apiGet(path, { token } = {}) {
   /** Fetch helper for GET requests */
@@ -22,7 +28,7 @@ export async function apiGet(path, { token } = {}) {
     headers: buildHeaders(token),
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`GET ${path} failed: ${res.status}`);
+  if (!res.ok) return handleError(path, "GET", res);
   return res.json();
 }
 
@@ -35,7 +41,7 @@ export async function apiPost(path, body, { token } = {}) {
     body: JSON.stringify(body),
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`POST ${path} failed: ${res.status}`);
+  if (!res.ok) return handleError(path, "POST", res);
   return res.json();
 }
 
@@ -48,7 +54,7 @@ export async function apiPut(path, body, { token } = {}) {
     body: JSON.stringify(body),
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`PUT ${path} failed: ${res.status}`);
+  if (!res.ok) return handleError(path, "PUT", res);
   return res.json();
 }
 
@@ -60,6 +66,11 @@ export async function apiDelete(path, { token } = {}) {
     headers: buildHeaders(token),
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`DELETE ${path} failed: ${res.status}`);
-  return res.json();
+  if (!res.ok) return handleError(path, "DELETE", res);
+  // Some DELETEs may have no content
+  try {
+    return await res.json();
+  } catch {
+    return {};
+  }
 }

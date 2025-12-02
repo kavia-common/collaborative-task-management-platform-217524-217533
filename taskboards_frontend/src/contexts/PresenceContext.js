@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { createWSClient } from "../services/ws";
 import { useAuth } from "./AuthContext";
+import { useDemo } from "./../contexts/DemoContext";
 
 const PresenceContext = createContext(null);
 
@@ -21,17 +22,35 @@ export function PresenceProvider({ children }) {
    * { type: "cursor", userId, x, y }
    */
   const { token, user } = useAuth();
+  const { setWsStatus } = useDemo();
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [cursors, setCursors] = useState({});
   const wsRef = useRef(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setWsStatus("closed");
+      return;
+    }
     const ws = createWSClient({ endpoint: "/ws", token });
     wsRef.current = ws;
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({ type: "join", user }));
+      setWsStatus("open");
+      try {
+        ws.send(JSON.stringify({ type: "join", user }));
+      } catch {
+        // ignore
+      }
+    };
+    ws.onclose = () => {
+      setWsStatus("closed");
+    };
+    ws.onerror = () => {
+      setWsStatus("closed");
+    };
+    ws.onconnecting = () => {
+      setWsStatus("connecting");
     };
     ws.onmessage = (evt) => {
       try {
@@ -46,9 +65,9 @@ export function PresenceProvider({ children }) {
       }
     };
     return () => {
-      ws.close();
+      try { ws.close(); } catch {}
     };
-  }, [token, user]);
+  }, [token, user, setWsStatus]);
 
   const value = useMemo(() => ({ onlineUsers, cursors }), [onlineUsers, cursors]);
   return <PresenceContext.Provider value={value}>{children}</PresenceContext.Provider>;

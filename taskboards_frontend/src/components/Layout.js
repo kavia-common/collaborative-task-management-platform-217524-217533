@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { theme } from "../theme";
 import { useAuth } from "../contexts/AuthContext";
 import PresenceIndicator from "./PresenceIndicator";
+import { useDemo } from "../contexts/DemoContext";
 
 const styles = {
   header: {
@@ -48,6 +49,7 @@ const styles = {
 
 export default function Layout({ children }) {
   const { user, isAuthenticated, logout } = useAuth();
+  const { wsStatus } = useDemo();
 
   return (
     <div style={{ background: theme.colors.background, minHeight: "100vh", color: theme.colors.text }}>
@@ -70,6 +72,11 @@ export default function Layout({ children }) {
           )}
         </nav>
       </header>
+      {wsStatus !== "open" && (
+        <div style={{ background: "#EFF6FF", color: "#1E3A8A", borderBottom: `1px solid ${theme.colors.border}`, padding: "6px 16px", fontSize: 12 }}>
+          {wsStatus === "connecting" ? "Connecting to realtime..." : "Realtime disconnected. Retrying..."}
+        </div>
+      )}
       <main style={styles.container}>{children}</main>
     </div>
   );

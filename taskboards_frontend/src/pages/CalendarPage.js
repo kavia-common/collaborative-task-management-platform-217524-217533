@@ -1,20 +1,35 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CalendarView from "../components/CalendarView";
 import FiltersDrawer from "../components/FiltersDrawer";
 import CSVExportButton from "../components/CSVExportButton";
+import { useDemo } from "../contexts/DemoContext";
+import { apiGet } from "../services/api";
 
 /**
  * Calendar page with filters and CSV export of the currently filtered tasks.
+ * Uses DemoContext to fall back to mock tasks if backend is not ready or 503.
  */
 export default function CalendarPage() {
+  const { withDemoFallback, demoMode, mockTasks } = useDemo();
   const [filters, setFilters] = useState({});
-  const [tasks] = useState([
-    { id: "t1", title: "Design login screen", status: "Backlog", priority: "High", tags: ["frontend"], assignee: { name: "Alice" }, dueDate: "2025-12-03" },
-    { id: "t2", title: "API auth endpoint", status: "In Progress", priority: "Urgent", tags: ["backend","feature"], assignee: { name: "Bob" }, dueDate: "2025-12-04" },
-    { id: "t3", title: "Fix Kanban drag bug", status: "Review", priority: "Medium", tags: ["bug"], assignee: { name: "Charlie" }, dueDate: "2025-12-12" },
-    { id: "t4", title: "Release 0.1.0", status: "Done", priority: "High", tags: ["ops"], assignee: { name: "Dana" }, dueDate: "2025-12-15" },
-    { id: "t5", title: "Add calendar legends", status: "Backlog", priority: "Low", tags: ["frontend","feature"], assignee: { name: "Alice" }, dueDate: "2025-12-07" }
-  ]);
+  const [tasks, setTasks] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const data = await withDemoFallback(
+          apiGet("/tasks"),
+          { fallback: () => mockTasks }
+        );
+        if (!cancelled) setTasks(data);
+      } catch {
+        if (!cancelled) setTasks(demoMode ? mockTasks : []);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [withDemoFallback, demoMode, mockTasks]);
 
   const filtered = useMemo(() => {
     return tasks.filter(t => {

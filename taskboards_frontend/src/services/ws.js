@@ -9,8 +9,8 @@ import ReconnectingWebSocket from "reconnecting-websocket";
 export function createWSClient({ endpoint = "/realtime", token } = {}) {
   const base = process.env.REACT_APP_WS_URL || "";
   const url = new URL(base);
-  // Ensure endpoint is applied if base is root
-  if (endpoint && !url.pathname.endsWith(endpoint)) {
+  // Ensure endpoint is applied if base is root or doesn't match
+  if (endpoint && url.pathname !== endpoint) {
     url.pathname = endpoint;
   }
   if (token) url.searchParams.set("token", token);

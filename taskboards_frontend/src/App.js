@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PresenceProvider } from "./contexts/PresenceContext";
+import { DemoProvider } from "./contexts/DemoContext";
 
 // PUBLIC_INTERFACE
 function App() {
@@ -16,18 +17,20 @@ function App() {
    */
   return (
     <AuthProvider>
-      <PresenceProvider>
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<div style={{ padding: 12 }}>Welcome to TaskBoards. Use the navigation to access Boards and Calendar.</div>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/boards" element={<ProtectedRoute><Boards /></ProtectedRoute>} />
-              <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
-            </Routes>
-          </Layout>
-        </BrowserRouter>
-      </PresenceProvider>
+      <DemoProvider>
+        <PresenceProvider>
+          <BrowserRouter>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<div style={{ padding: 12 }}>Welcome to TaskBoards. Use the navigation to access Boards and Calendar.</div>} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/boards" element={<ProtectedRoute><Boards /></ProtectedRoute>} />
+                <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+              </Routes>
+            </Layout>
+          </BrowserRouter>
+        </PresenceProvider>
+      </DemoProvider>
     </AuthProvider>
   );
 }

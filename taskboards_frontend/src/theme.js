@@ -2,7 +2,9 @@ export const theme = {
   name: "Ocean Professional",
   colors: {
     primary: "#1E3A8A",
+    primaryHover: "#1B2F6E",
     secondary: "#F59E0B",
+    secondaryHover: "#D97706",
     success: "#059669",
     error: "#DC2626",
     background: "#F3F4F6",
@@ -10,6 +12,7 @@ export const theme = {
     text: "#111827",
     subtleText: "#6B7280",
     border: "#E5E7EB",
+    borderStrong: "#D1D5DB",
     shadow: "rgba(0,0,0,0.06)"
   },
   spacing: (n) => `${n * 8}px`,
