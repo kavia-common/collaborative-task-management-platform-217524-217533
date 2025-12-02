@@ -7,7 +7,31 @@
 
 import { useNotifications } from "../contexts/NotificationsContext";
 
-const API_BASE = process.env.REACT_APP_API_BASE_URL;
+const ENV_API = process.env.REACT_APP_API_BASE_URL;
+
+/**
+ * PUBLIC_INTERFACE
+ * getApiBase
+ * Determine the API base URL:
+ *  - Prefer REACT_APP_API_BASE_URL if set
+ *  - Otherwise, derive from window.location.origin by swapping :3000 -> :3001
+ *  - If not on :3000, still try same origin (useful for deployments sharing host)
+ */
+export function getApiBase() {
+  /** Resolve API base URL used by the app and diagnostics. */
+  try {
+    if (ENV_API) return ENV_API.replace(/\/+$/, "");
+    const origin = window.location.origin;
+    if (origin.includes(":3000")) {
+      return origin.replace(":3000", ":3001");
+    }
+    return origin;
+  } catch {
+    return ENV_API || "";
+  }
+}
+
+const API_BASE = getApiBase();
 
 /** Build default headers including optional auth token */
 function buildHeaders(token) {

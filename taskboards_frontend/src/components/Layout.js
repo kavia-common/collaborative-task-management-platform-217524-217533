@@ -5,6 +5,7 @@ import { useAuth } from "../contexts/AuthContext";
 import PresenceIndicator from "./PresenceIndicator";
 import { useDemo } from "../contexts/DemoContext";
 import { useNotifications } from "../contexts/NotificationsContext";
+import DiagnosticsPanel from "./DiagnosticsPanel";
 
 const styles = {
   header: {
@@ -62,6 +63,7 @@ export default function Layout({ children }) {
   const [checklistStatus, setChecklistStatus] = useState(null);
   const [devHover, setDevHover] = useState(false);
   const { push } = useNotifications();
+  const [diagOpen, setDiagOpen] = useState(false);
 
   const wsAnnounce = useMemo(
     () => (wsStatus === "connecting" ? "Connecting to realtime..." : "Realtime disconnected. Retrying..."),
@@ -194,16 +196,25 @@ export default function Layout({ children }) {
       <footer role="contentinfo" style={styles.footer}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "10px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span>TaskBoards • Ocean Professional</span>
-          <button
-            onMouseEnter={() => setDevHover(true)}
-            onMouseLeave={() => setDevHover(false)}
-            onClick={() => window.dispatchEvent(new CustomEvent("tb:toggle-diagnostics", { detail: "toggle" }))}
-            aria-label="Toggle developer diagnostics"
-            style={{ background: "transparent", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: "6px 10px", cursor: "pointer", color: theme.colors.subtleText }}
-          >
-            Developer
-            {devHover && <span style={{ marginLeft: 6, fontSize: 12 }}>(status, WS, env)</span>}
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setDiagOpen(true)}
+              aria-label="Run Diagnostics"
+              style={{ background: "transparent", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: "6px 10px", cursor: "pointer", color: theme.colors.subtleText }}
+            >
+              Run Diagnostics
+            </button>
+            <button
+              onMouseEnter={() => setDevHover(true)}
+              onMouseLeave={() => setDevHover(false)}
+              onClick={() => window.dispatchEvent(new CustomEvent("tb:toggle-diagnostics", { detail: "toggle" }))}
+              aria-label="Toggle developer diagnostics"
+              style={{ background: "transparent", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: "6px 10px", cursor: "pointer", color: theme.colors.subtleText }}
+            >
+              Developer
+              {devHover && <span style={{ marginLeft: 6, fontSize: 12 }}>(status, WS, env)</span>}
+            </button>
+          </div>
         </div>
       </footer>
 
@@ -263,6 +274,8 @@ export default function Layout({ children }) {
           />
         </>
       )}
+
+      <DiagnosticsPanel open={diagOpen} onClose={() => setDiagOpen(false)} />
     </div>
   );
 }
