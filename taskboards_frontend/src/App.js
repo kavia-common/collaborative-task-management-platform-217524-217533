@@ -22,7 +22,7 @@ function App() {
           <BrowserRouter>
             <Layout>
               <Routes>
-                <Route path="/" element={<div style={{ padding: 12 }}>Welcome to TaskBoards. Use the navigation to access Boards and Calendar.</div>} />
+                <Route path="/" element={<div role="region" aria-label="Welcome" style={{ padding: 12 }}>Welcome to TaskBoards. Use the navigation to access Boards and Calendar.</div>} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/boards" element={<ProtectedRoute><Boards /></ProtectedRoute>} />
                 <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />

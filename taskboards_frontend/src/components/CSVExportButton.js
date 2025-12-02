@@ -39,7 +39,9 @@ export default function CSVExportButton({ tasks = [] }) {
     return (
       <span
         title={tooltip}
+        role="button"
         aria-disabled="true"
+        aria-label="Export CSV disabled"
         style={{
           background: "#F3F4F6",
           color: theme.colors.subtleText,
@@ -63,6 +65,7 @@ export default function CSVExportButton({ tasks = [] }) {
       headers={headers}
       filename="taskboards_export.csv"
       title={tooltip}
+      aria-label="Export current tasks as CSV"
       style={{
         background: theme.colors.secondary,
         color: "#111",

@@ -13,10 +13,36 @@ export default function CalendarPage() {
   const { withDemoFallback, demoMode, mockTasks } = useDemo();
   const [filters, setFilters] = useState({});
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize from URL
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const initial = {
+      query: sp.get("q") || "",
+      assignee: sp.get("assignee") || "",
+      priority: sp.get("priority") || "",
+      tag: sp.get("tag") || ""
+    };
+    setFilters((prev) => ({ ...prev, ...initial }));
+  }, []);
+
+  // Persist to URL
+  useEffect(() => {
+    const sp = new URLSearchParams();
+    if (filters.query) sp.set("q", filters.query);
+    if (filters.assignee) sp.set("assignee", filters.assignee);
+    if (filters.priority) sp.set("priority", filters.priority);
+    if (filters.tag) sp.set("tag", filters.tag);
+    const qs = sp.toString();
+    const newUrl = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", newUrl);
+  }, [filters]);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      setLoading(true);
       try {
         const data = await withDemoFallback(
           apiGet("/tasks"),
@@ -25,6 +51,8 @@ export default function CalendarPage() {
         if (!cancelled) setTasks(data);
       } catch {
         if (!cancelled) setTasks(demoMode ? mockTasks : []);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     load();
@@ -44,10 +72,21 @@ export default function CalendarPage() {
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <FiltersDrawer onChange={setFilters} />
+        <FiltersDrawer onChange={setFilters} initial={filters} />
         <CSVExportButton tasks={filtered} />
       </div>
-      <CalendarView tasks={filtered} />
+      {loading ? (
+        <div aria-busy="true" aria-label="Loading calendar" style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(7, 1fr)" }}>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={`h-${i}`} style={{ height: 18, background: "#E5E7EB", borderRadius: 4 }} />
+          ))}
+          {Array.from({ length: 42 }).map((_, i) => (
+            <div key={`d-${i}`} style={{ height: 100, background: "#FFFFFF", border: "1px solid #E5E7EB", borderRadius: 8 }} />
+          ))}
+        </div>
+      ) : (
+        <CalendarView tasks={filtered} />
+      )}
     </div>
   );
 }

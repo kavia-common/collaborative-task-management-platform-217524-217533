@@ -44,6 +44,8 @@ export function DemoProvider({ children }) {
   const [backendReady, setBackendReady] = useState(!demoMode);
   const [wsStatus, setWsStatus] = useState("connecting");
   const [mockTasks, setMockTasks] = useState(initialMockTasks);
+  const [dbConfigured, setDbConfigured] = useState(null);
+  const [statusDetails, setStatusDetails] = useState(null);
 
   // Check backend status when not forced demo
   useEffect(() => {
@@ -51,6 +53,7 @@ export function DemoProvider({ children }) {
     async function check() {
       if (demoMode) {
         setBackendReady(false);
+        setDbConfigured(false);
         return;
       }
       const base = process.env.REACT_APP_API_BASE_URL || "";
@@ -59,9 +62,20 @@ export function DemoProvider({ children }) {
         if (!cancelled) {
           if (res.status === 503) {
             setBackendReady(false);
+            setDbConfigured(false);
             setDemoMode(true);
           } else {
-            setBackendReady(res.ok);
+            const ok = res.ok;
+            setBackendReady(ok);
+            try {
+              const json = await res.json();
+              setStatusDetails(json || null);
+              if (typeof json?.dbConfigured === "boolean") {
+                setDbConfigured(json.dbConfigured);
+              }
+            } catch {
+              // ignore parse
+            }
           }
         }
       } catch {

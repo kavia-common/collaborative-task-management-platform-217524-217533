@@ -8,10 +8,15 @@ Ocean Professional themed frontend for a collaborative task management app with 
    cp .env.example .env
    # Edit .env for REACT_APP_API_BASE_URL and REACT_APP_WS_URL
 
-2) Install and run
-   npm install
-   npm start
+2) Run in Demo mode (no DB required)
+   # Enables mock data, realtime banner, and disables server mutations
+   REACT_APP_DEMO_MODE=true npm start
    # App runs at http://localhost:3000
+
+3) Connect to a backend (optional)
+   - Set REACT_APP_API_BASE_URL to your backend URL (e.g., http://localhost:3001)
+   - Set REACT_APP_WS_URL to your backend websocket URL (e.g., ws://localhost:3001/ws)
+   - If the backend /status reports dbConfigured=false, a setup banner appears linking to SETUP_DB.md
 
 ## Features
 
@@ -40,3 +45,11 @@ Ocean Professional themed frontend for a collaborative task management app with 
 - Replace demo data and mocked login with backend API calls as endpoints become available.
 - Keep environment variables in .env (do not commit secrets).
 - For production builds: npm run build
+
+## Contributing
+
+See CONTRIBUTING.md for development workflow, coding style, and commit conventions.
+
+## Database Setup
+
+If you want to use a real database with the backend, follow SETUP_DB.md in the backend container root.

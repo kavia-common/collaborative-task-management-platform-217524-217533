@@ -5,13 +5,13 @@ import { theme } from "../theme";
  * Filters Drawer for Kanban/Calendar.
  * Controlled internally; calls onChange with the current filters.
  */
-export default function FiltersDrawer({ onChange }) {
+export default function FiltersDrawer({ onChange, initial = {} }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState({
-    assignee: "",
-    priority: "",
-    tag: "",
-    query: ""
+    assignee: initial.assignee || "",
+    priority: initial.priority || "",
+    tag: initial.tag || "",
+    query: initial.query || ""
   });
 
   const options = useMemo(() => ({
@@ -29,6 +29,7 @@ export default function FiltersDrawer({ onChange }) {
     <>
       <button
         onClick={() => setOpen(true)}
+        aria-label="Open filters"
         style={{
           background: theme.colors.surface,
           border: `1px solid ${theme.colors.border}`,
@@ -54,11 +55,13 @@ export default function FiltersDrawer({ onChange }) {
           <div style={{ display: "grid", gap: 12 }}>
             <input
               placeholder="Search..."
+              aria-label="Search tasks"
               value={selected.query}
               onChange={(e) => setSelected(s => ({ ...s, query: e.target.value }))}
               style={{ padding: 8, border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm }}
             />
             <select
+              aria-label="Filter by assignee"
               value={selected.assignee}
               onChange={(e) => setSelected(s => ({ ...s, assignee: e.target.value }))}
               style={{ padding: 8, border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm }}
@@ -67,6 +70,7 @@ export default function FiltersDrawer({ onChange }) {
               {options.assignees.map(a => <option key={a} value={a}>{a}</option>)}
             </select>
             <select
+              aria-label="Filter by priority"
               value={selected.priority}
               onChange={(e) => setSelected(s => ({ ...s, priority: e.target.value }))}
               style={{ padding: 8, border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm }}
@@ -75,6 +79,7 @@ export default function FiltersDrawer({ onChange }) {
               {options.priorities.map(p => <option key={p} value={p}>{p}</option>)}
             </select>
             <select
+              aria-label="Filter by tag"
               value={selected.tag}
               onChange={(e) => setSelected(s => ({ ...s, tag: e.target.value }))}
               style={{ padding: 8, border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm }}
@@ -84,19 +89,21 @@ export default function FiltersDrawer({ onChange }) {
             </select>
             <div style={{ display: "flex", gap: 8 }}>
               <button
+                aria-label="Reset filters"
                 onClick={() => setSelected({ assignee: "", priority: "", tag: "", query: "" })}
                 style={{ flex: 1, background: "#fff", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: 10 }}
               >
                 Reset
               </button>
               <button
+                aria-label="Apply filters"
                 onClick={apply}
                 style={{ flex: 1, background: theme.colors.primary, color: "#fff", border: "none", borderRadius: theme.radius.sm, padding: 10 }}
               >
                 Apply
               </button>
             </div>
-            <button onClick={() => setOpen(false)} style={{ background: "transparent", border: "none", color: theme.colors.subtleText }}>
+            <button aria-label="Close filters" onClick={() => setOpen(false)} style={{ background: "transparent", border: "none", color: theme.colors.subtleText }}>
               Close
             </button>
           </div>

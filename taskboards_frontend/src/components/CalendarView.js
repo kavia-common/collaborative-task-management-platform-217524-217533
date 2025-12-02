@@ -42,6 +42,7 @@ export default function CalendarView({ tasks = [] }) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <button
           onClick={() => setCurrent(d => addMonths(d, -1))}
+          aria-label="Previous month"
           style={{ background: "#fff", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: "8px 10px" }}
         >
           ◀
@@ -49,6 +50,7 @@ export default function CalendarView({ tasks = [] }) {
         <h3 style={{ margin: 0, color: theme.colors.primary }}>{label}</h3>
         <button
           onClick={() => setCurrent(d => addMonths(d, 1))}
+          aria-label="Next month"
           style={{ background: "#fff", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: "8px 10px" }}
         >
           ▶

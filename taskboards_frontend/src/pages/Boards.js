@@ -13,11 +13,37 @@ export default function Boards() {
   const { withDemoFallback, demoMode, mockTasks, setMockTasks, disableMutations } = useDemo();
   const [filters, setFilters] = useState({});
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Initialize filters from URL
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const initial = {
+      query: sp.get("q") || "",
+      assignee: sp.get("assignee") || "",
+      priority: sp.get("priority") || "",
+      tag: sp.get("tag") || ""
+    };
+    setFilters((prev) => ({ ...prev, ...initial }));
+  }, []);
+
+  // Persist filters to URL
+  useEffect(() => {
+    const sp = new URLSearchParams();
+    if (filters.query) sp.set("q", filters.query);
+    if (filters.assignee) sp.set("assignee", filters.assignee);
+    if (filters.priority) sp.set("priority", filters.priority);
+    if (filters.tag) sp.set("tag", filters.tag);
+    const qs = sp.toString();
+    const newUrl = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+    window.history.replaceState(null, "", newUrl);
+  }, [filters]);
 
   // Load tasks: try API, on 503 fallback to mock
   useEffect(() => {
     let cancelled = false;
     async function load() {
+      setLoading(true);
       try {
         const data = await withDemoFallback(
           apiGet("/tasks"),
@@ -29,6 +55,8 @@ export default function Boards() {
       } catch {
         // Network or other errors - show mock tasks if demoMode active, else keep empty
         if (!cancelled) setTasks(demoMode ? mockTasks : []);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     load();
@@ -60,10 +88,23 @@ export default function Boards() {
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <FiltersDrawer onChange={setFilters} />
+        <FiltersDrawer onChange={setFilters} initial={filters} />
         <CSVExportButton tasks={filtered} />
       </div>
-      <KanbanBoard initialTasks={filtered} onTasksChange={onTasksChange} />
+      {loading ? (
+        <div aria-busy="true" aria-label="Loading board" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+          {Array.from({ length: 4 }).map((_, col) => (
+            <div key={col} style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 8, padding: 12, minHeight: 320 }}>
+              <div style={{ height: 14, width: 120, background: "#F3F4F6", borderRadius: 4, marginBottom: 12 }} />
+              {Array.from({ length: 4 }).map((__, i) => (
+                <div key={i} style={{ background: "#F9FAFB", border: "1px solid #E5E7EB", height: 52, borderRadius: 6, marginBottom: 10 }} />
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <KanbanBoard initialTasks={filtered} onTasksChange={onTasksChange} />
+      )}
     </div>
   );
 }
