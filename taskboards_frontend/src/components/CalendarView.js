@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, memo } from "react";
 import { addMonths, endOfMonth, format, getDate, isSameDay, isSameMonth, startOfMonth, startOfWeek } from "date-fns";
 import { theme } from "../theme";
 
@@ -8,7 +8,7 @@ import { theme } from "../theme";
  */
 
 // PUBLIC_INTERFACE
-export default function CalendarView({ tasks = [] }) {
+function CalendarViewImpl({ tasks = [] }) {
   const [current, setCurrent] = useState(new Date());
 
   const { grid, label } = useMemo(() => {
@@ -107,3 +107,6 @@ export default function CalendarView({ tasks = [] }) {
     </div>
   );
 }
+
+const CalendarView = memo(CalendarViewImpl);
+export default CalendarView;

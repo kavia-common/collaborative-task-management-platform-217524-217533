@@ -1,4 +1,4 @@
-import React, { useMemo, useState, memo } from "react";
+import React, { useMemo, useState, memo, useId } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { theme } from "../theme";
 import { usePresence } from "../contexts/PresenceContext";
@@ -44,8 +44,13 @@ const KanbanBoard = ({ initialTasks = [], onTasksChange }) => {
 
   const { cursors } = usePresence();
 
+  const helperId = useId();
+
   return (
     <div style={{ position: "relative" }}>
+      <p id={helperId} style={{ position: "absolute", left: -9999, top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+        Tip: Use arrow keys to navigate tasks. Use space to lift an item, arrow keys to move, and space to drop.
+      </p>
       <DragDropContext onDragEnd={onDragEnd}>
         <div style={{ display: "grid", gridTemplateColumns: `repeat(${statuses.length}, 1fr)`, gap: 16 }}>
           {statuses.map((status) => (
@@ -56,6 +61,7 @@ const KanbanBoard = ({ initialTasks = [], onTasksChange }) => {
                   {...provided.droppableProps}
                   role="list"
                   aria-label={`${status} column`}
+                  aria-describedby={helperId}
                   style={{
                     background: theme.colors.surface,
                     border: `1px solid ${theme.colors.border}`,
@@ -77,6 +83,7 @@ const KanbanBoard = ({ initialTasks = [], onTasksChange }) => {
                             {...prov.dragHandleProps}
                             role="listitem"
                             aria-label={`Task ${task.title}`}
+                            tabIndex={0}
                             style={{
                               background: "#fff",
                               border: `1px solid ${theme.colors.border}`,
@@ -85,6 +92,7 @@ const KanbanBoard = ({ initialTasks = [], onTasksChange }) => {
                               marginBottom: 10,
                               boxShadow: `0 1px 2px ${theme.colors.shadow}`,
                               transition: "box-shadow 0.15s ease, transform 0.05s ease",
+                              outline: "none",
                               ...prov.draggableProps.style,
                             }}
                           >
