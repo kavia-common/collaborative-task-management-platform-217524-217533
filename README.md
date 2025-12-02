@@ -7,7 +7,8 @@
   - cp .env.example .env
   - Set REACT_APP_DEMO_MODE=true to explore with mock data
   - npm install && npm start
-  - Use the in-app Developer diagnostics (footer → Developer) to view backend `/status`, WS state, and envs in use.
+  - Use the in-app Developer diagnostics (Footer → Developer) to view backend `/status`, WS state, and envs in use.
+  - Use the Setup Checklist button (appears when backend isn’t ready) to confirm DB, secret key, and CORS configuration.
 
 - Backend:
   - See taskboards_backend/SETUP_DB.md for database configuration

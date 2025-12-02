@@ -28,7 +28,8 @@ This guide lists common preview issues and quick fixes for TaskBoards.
   - If DB is not configured, the backend should still respond with status info; DB-dependent endpoints should return HTTP 503 with a JSON body including an `action` hint.
 
 - 503 from DB-dependent endpoints:
-  - This indicates DB is not configured. Use the Setup Checklist from the frontend banner or consult `taskboards_backend/SETUP_DB.md`.
+  - This indicates DB is not configured. The backend returns a structured JSON body including an `action` hint and `correlation_id`.
+  - Use the Setup Checklist from the frontend banner or consult `taskboards_backend/SETUP_DB.md`.
 
 - CORS issues:
   - The backend parses comma-separated CORS origins. Use exact origins or `*` during local development. Review backend logs for the effective origins on startup.

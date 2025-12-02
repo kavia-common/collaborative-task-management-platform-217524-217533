@@ -77,7 +77,7 @@ function DevDiagnostics({ open, onClose }) {
         <div style={{ display: "grid", gap: 10, fontSize: 13 }}>
           <div><strong>Backend Status</strong></div>
           <pre style={{ margin: 0, background: "#F9FAFB", border: `1px solid ${theme.colors.border}`, borderRadius: theme.radius.sm, padding: 8, maxHeight: 180, overflow: "auto" }}>
-{JSON.stringify(status || { note: "No response or API base not set." }, null, 2)}
+{JSON.stringify(status || { note: apiBase ? "No response from /status" : "API base not set" }, null, 2)}
           </pre>
           <div style={{ display: "grid", gap: 6 }}>
             <strong>Envs in use</strong>

@@ -131,8 +131,8 @@ export default function Layout({ children }) {
       }
     })();
     return [
-      { key: "db", label: "Database URL configured", ok: !!s.db_configured || !!s.dbConfigured },
-      { key: "secret", label: "SECRET_KEY configured", ok: !!s.secret_key_configured || !!s.secretConfigured },
+      { key: "db", label: "Database configured", ok: !!s.db_configured || !!s.dbConfigured },
+      { key: "secret", label: "Secret key configured", ok: !!s.secret_key_configured || !!s.secretConfigured },
       { key: "cors", label: "CORS allows this frontend origin", ok: corsOk }
     ];
   }, [checklistStatus]);
